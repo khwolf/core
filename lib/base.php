@@ -148,7 +148,7 @@ class OC {
 		// search the 3rdparty folder
 		OC::$THIRDPARTYROOT = OC_Config::getValue('3rdpartyroot', null);
 		OC::$THIRDPARTYWEBROOT = OC_Config::getValue('3rdpartyurl', null);
-		
+
 		if (empty(OC::$THIRDPARTYROOT) && empty(OC::$THIRDPARTYWEBROOT)) {
 			if (file_exists(OC::$SERVERROOT . '/3rdparty')) {
 				OC::$THIRDPARTYROOT = OC::$SERVERROOT;
@@ -163,7 +163,7 @@ class OC {
 				. ' folder in the ownCloud folder or the folder above.'
 				. ' You can also configure the location in the config.php file.');
 		}
-		
+
 		// search the apps folder
 		$config_paths = OC_Config::getValue('apps_paths', array());
 		if (!empty($config_paths)) {
@@ -613,6 +613,7 @@ class OC {
 		self::registerShareHooks();
 		self::registerLogRotate();
 		self::registerLocalAddressBook();
+		self::registerEncryptionWrapper();
 
 		//make sure temporary files are cleaned up
 		$tmpManager = \OC::$server->getTempManager();
@@ -667,6 +668,21 @@ class OC {
 			\OC::$server->getContactsManager()->registerAddressBook(
 				new \OC\Contacts\LocalAddressBook($userManager));
 		});
+	}
+
+	private static function registerEncryptionWrapper() {
+		$enabled = self::$server->getEncryptionManager()->isEnabled();
+		if ($enabled) {
+			\OC\Files\Filesystem::addStorageWrapper('oc_encryption', function ($mountPoint, $storage) {
+				$parameters = array('storage' => $storage, 'mountPoint' => $mountPoint);
+				$manager = \OC::$server->getEncryptionManager();
+				$util = new \OC\Encryption\Util();
+				$user = \OC::$server->getUserSession()->getUser();
+				$uid = $user ? $user->getUID() : null;
+				return new \OC\Files\Storage\Wrapper\Encryption($parameters, $manager,$util, $uid);
+			});
+		}
+
 	}
 
 	/**
