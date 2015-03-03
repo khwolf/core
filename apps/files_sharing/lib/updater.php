@@ -21,6 +21,8 @@
 
 namespace OC\Files\Cache;
 
+use OCA\Files_sharing\Command\DeleteOrphanedSharesCommand;
+
 class Shared_Updater {
 
 	// shares which can be removed from oc_share after the delete operation was successful
@@ -92,8 +94,20 @@ class Shared_Updater {
 			} catch (\Exception $e) {
 				\OCP\Util::writeLog('files_sharing', "can't remove share: " . $e->getMessage(), \OCP\Util::WARN);
 			}
+
+			// it might have been a folder, schedule deletion of orphaned shares
+			self::scheduleDeleteOrphanedShares();
 		}
 		unset(self::$toRemove[$path]);
+	}
+
+	/**
+	 * Schedule a background job for the deletion of orphaned shares
+	 */
+	static private function scheduleDeleteOrphanedShares() {
+		\OC::$server->getCommandBus()->push(
+			new DeleteOrphanedSharesCommand()
+		);
 	}
 
 	/**

@@ -115,6 +115,32 @@ class Test_Files_Sharing_Updater extends OCA\Files_sharing\Tests\TestCase {
 		\OC\Files\Filesystem::getLoader()->removeStorageWrapper('oc_trashbin');
 	}
 
+	function testDeleteFolderWithOutgoingSharesInside() {
+		OC_FileProxy::register(new OCA\Files\Share\Proxy());
+
+		$fileinfo = \OC\Files\Filesystem::getFileInfo($this->folder . '/' . $this->filename);
+		$this->assertTrue($fileinfo instanceof \OC\Files\FileInfo);
+
+		\OCP\Share::shareItem('file', $fileinfo->getId(), \OCP\Share::SHARE_TYPE_USER, self::TEST_FILES_SHARING_API_USER2, 31);
+
+		$foldersShared = \OCP\Share::getItemsShared('file');
+		$this->assertCount(1, $foldersShared);
+
+		$this->view->unlink($this->folder);
+
+		$foldersShared = \OCP\Share::getItemsShared('file');
+		$this->assertCount(1, $foldersShared);
+
+		// files moved to trash, still associated with share entry,
+		// so clear trash to make it an orphaned share
+		\OCA\Files_Trashbin\Trashbin::deleteAll();
+
+		$this->runCommands();
+
+		$foldersShared = \OCP\Share::getItemsShared('file');
+		$this->assertCount(0, $foldersShared);
+	}
+
 	/**
 	 * if a file gets shared the etag for the recipients root should change
 	 */
