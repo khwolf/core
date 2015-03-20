@@ -53,8 +53,6 @@ class Server extends SimpleContainer implements IServerContainer {
 		$this->registerService('EncryptionKeyStorageFactory', function ($c) {
 			return new Encryption\Keys\Factory();
 		});
-
-		});
 		$this->registerService('TagMapper', function(Server $c) {
 			return new TagMapper($c->getDatabaseConnection());
 		});
