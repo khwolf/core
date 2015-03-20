@@ -207,5 +207,21 @@ class StorageTest extends TestCase {
 		);
 	}
 
+	public function testDeleteUserKey() {
+		$this->view->expects($this->once())
+			->method('unlink')
+			->with($this->equalTo('/user1/files_encryption/encModule/user1.publicKey'))
+			->willReturn(true);
+		$this->view->expects($this->once())
+			->method('file_exists')
+			->with($this->equalTo('/user1/files_encryption/encModule/user1.publicKey'))
+			->willReturn(true);
+
+		$storage = new Storage('encModule', $this->view, $this->util);
+
+		$this->assertTrue(
+			$storage->deleteUserKey('user1', 'publicKey')
+		);
+	}
 
 }

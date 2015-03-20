@@ -51,7 +51,7 @@ class Update {
 	 * @param \OC\Files\View $view
 	 * @param \OC\Encryption\Util $util
 	 * @param \OC\Files\Mount\Manager $mountManager
-	 * * @param \OC\Encryption\Manager $encryptionManager
+	 * @param \OC\Encryption\Manager $encryptionManager
 	 * @param string $uid
 	 */
 	public function __construct(

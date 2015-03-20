@@ -84,4 +84,34 @@ interface IStorage {
 	 */
 	public function setSystemUserKey($keyId, $key);
 
+	/**
+	 * delete user specific key
+	 *
+	 * @param string $uid ID if the user for whom we want to delete the key
+	 * @param string $keyId id of the key
+	 *
+	 * @return boolean
+	 */
+	public function deleteUserKey($uid, $keyId);
+
+	/**
+	 * delete file specific key
+	 *
+	 * @param string $path path to file
+	 * @param string $keyId id of the key
+	 *
+	 * @return boolean
+	 */
+	public function deleteFileKey($path, $keyId);
+
+	/**
+	 * delete system-wide encryption keys not related to a specific user,
+	 * e.g something like a key for public link shares
+	 *
+	 * @param string $keyId id of the key
+	 *
+	 * @return boolean
+	 */
+	public function deleteSystemUserKey($keyId);
+
 }

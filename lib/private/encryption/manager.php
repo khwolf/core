@@ -48,7 +48,11 @@ class Manager implements \OCP\Encryption\IManager {
 	 */
 	public function isEnabled() {
 
-		$enabled = $this->config->getAppValue('core', 'encryption_enabled', 'no');
+		try {
+			$enabled = $this->config->getAppValue('core', 'encryption_enabled', 'no');
+		} catch (\Exception $e) {
+			return false;
+		}
 
 		if ($enabled === 'yes') {
 			return true;
@@ -140,10 +144,16 @@ class Manager implements \OCP\Encryption\IManager {
 	 * set default encryption module Id
 	 *
 	 * @param string $moduleId
-	 * @return string
+	 * @return bool
 	 */
 	public function setDefaultEncryptionModule($moduleId) {
-		return $this->config->setAppValue('core', 'default_encryption_module', $moduleId);
+		try {
+			$this->config->setAppValue('core', 'default_encryption_module', $moduleId);
+			return true;
+		} catch (\Exception $e) {
+			return false;
+		}
+
 	}
 
 	/**
@@ -152,7 +162,11 @@ class Manager implements \OCP\Encryption\IManager {
 	 * @return string
 	 */
 	protected function getDefaultEncryptionModuleId() {
-		return $this->config->getAppValue('core', 'default_encryption_module');
+		try {
+			return $this->config->getAppValue('core', 'default_encryption_module');
+		} catch (\Exception $e) {
+			return '';
+		}
 	}
 
 
