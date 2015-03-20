@@ -48,16 +48,13 @@ class Manager implements \OCP\Encryption\IManager {
 	 */
 	public function isEnabled() {
 
-		try {
-			$enabled = $this->config->getAppValue('core', 'encryption_enabled', 'no');
-		} catch (\Exception $e) {
+		$installed = $this->config->getSystemValue('installed', false);
+		if (!$installed) {
 			return false;
 		}
 
-		if ($enabled === 'yes') {
-			return true;
-		}
-		return false;
+		$enabled = $this->config->getAppValue('core', 'encryption_enabled', 'no');
+		return $enabled === 'yes';
 	}
 
 	/**
