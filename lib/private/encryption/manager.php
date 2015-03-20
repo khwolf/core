@@ -47,8 +47,10 @@ class Manager implements \OCP\Encryption\IManager {
 	 * @return bool true if enabled, false if not
 	 */
 	public function isEnabled() {
-		$enabled = $this->config->getSystemValue('encryption_enabled', false);
-		if ($enabled) {
+
+		$enabled = $this->config->getAppValue('core', 'encryption_enabled', 'no');
+
+		if ($enabled === 'yes') {
 			return true;
 		}
 		return false;
@@ -66,6 +68,13 @@ class Manager implements \OCP\Encryption\IManager {
 		if (isset($this->encryptionModules[$id])) {
 			$message = 'Id "' . $id . '" already used by encryption module "' . $name . '"';
 			throw new Exceptions\ModuleAlreadyExistsException($message);
+
+		}
+
+		$defaultEncryptionModuleId = $this->getDefaultEncryptionModuleId();
+
+		if (empty($defaultEncryptionModuleId)) {
+			$this->setDefaultEncryptionModule($id);
 		}
 
 		$this->encryptionModules[$id] = $module;
@@ -96,25 +105,55 @@ class Manager implements \OCP\Encryption\IManager {
 	 * @return IEncryptionModule
 	 * @throws Exceptions\ModuleDoesNotExistsException
 	 */
-	public function getEncryptionModule($moduleId = '') {
-		if (!empty($moduleId)) {
-			if (isset($this->encryptionModules[$moduleId])) {
-				return $this->encryptionModules[$moduleId];
-			} else {
-				$message = "Module with id: $moduleId does not exists.";
-				throw new Exceptions\ModuleDoesNotExistsException($message);
-			}
-		} else { // get default module and return this
-				 // For now we simply return the first module until we have a way
-	             // to enable multiple modules and define a default module
-			$module = reset($this->encryptionModules);
-			if ($module) {
-				return $module;
-			} else {
-				$message = 'No encryption module registered';
-				throw new Exceptions\ModuleDoesNotExistsException($message);
-			}
+	public function getEncryptionModule($moduleId) {
+		if (isset($this->encryptionModules[$moduleId])) {
+			return $this->encryptionModules[$moduleId];
+		} else {
+			$message = "Module with id: $moduleId does not exists.";
+			throw new Exceptions\ModuleDoesNotExistsException($message);
 		}
 	}
+
+	/**
+	 * get default encryption module
+	 *
+	 * @return \OCP\Encryption\IEncryptionModule
+	 * @throws Exceptions\ModuleDoesNotExistsException
+	 */
+	public function getDefaultEncryptionModule() {
+		$defaultModuleId = $this->getDefaultEncryptionModuleId();
+		if (!empty($defaultModuleId)) {
+			if (isset($this->encryptionModules[$defaultModuleId])) {
+				return $this->encryptionModules[$defaultModuleId];
+			} else {
+				$message = 'Default encryption module not loaded';
+				throw new Exceptions\ModuleDoesNotExistsException($message);
+			}
+		} else {
+			$message = 'No default encryption module defined';
+			throw new Exceptions\ModuleDoesNotExistsException($message);
+		}
+
+	}
+
+	/**
+	 * set default encryption module Id
+	 *
+	 * @param string $moduleId
+	 * @return string
+	 */
+	public function setDefaultEncryptionModule($moduleId) {
+		return $this->config->setAppValue('core', 'default_encryption_module', $moduleId);
+	}
+
+	/**
+	 * get default encryption module Id
+	 *
+	 * @return string
+	 */
+	protected function getDefaultEncryptionModuleId() {
+		return $this->config->getAppValue('core', 'default_encryption_module');
+	}
+
 
 }

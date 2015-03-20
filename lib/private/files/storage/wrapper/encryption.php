@@ -81,8 +81,10 @@ class Encryption extends Wrapper {
 			$size = $info['unencrypted_size'];
 			if ($size <= 0) {
 				$encryptionModule = $this->getEncryptionModule($path);
-				$size = $encryptionModule->calculateUnencryptedSize($fullPath);
-				$this->getCache()->update($info['id'], array('unencrypted_size' => $size));
+				if ($encryptionModule) {
+					$size = $encryptionModule->calculateUnencryptedSize($fullPath);
+					$this->getCache()->update($info['id'], array('unencrypted_size' => $size));
+				}
 			}
 
 		}
@@ -191,7 +193,11 @@ class Encryption extends Wrapper {
 			|| $mode === 'wb'
 			|| $mode === 'wb+'
 		) {
-			$encryptionModule = $this->encryptionManager->getEncryptionModule($encryptionModuleId);
+			if (!empty($encryptionModuleId)) {
+				$encryptionModule = $this->encryptionManager->getEncryptionModule($encryptionModuleId);
+			} else {
+				$encryptionModule = $this->encryptionManager->getDefaultEncryptionModule();
+			}
 			$shouldEncrypt = $encryptionModule->shouldEncrypt($fullPath);
 		} else {
 			// only get encryption module if we found one in the header

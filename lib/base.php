@@ -694,6 +694,7 @@ class OC {
 				new \OC\Files\View(),
 				new \OC\Encryption\Util(new \OC\Files\View(), \OC::$server->getUserManager()),
 				\OC\Files\Filesystem::getMountManager(),
+				\OC::$server->getEncryptionManager(),
 				\OC::$server->getUserSession()->getUser()->getUID()
 			);
 			\OCP\Util::connectHook('OCP\Share', 'post_shared', $updater, 'postShared');

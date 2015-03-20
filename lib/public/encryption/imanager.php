@@ -72,4 +72,21 @@ interface IManager {
 	 * @throws ModuleDoesNotExistsException
 	 */
 	function getEncryptionModule($moduleId);
+
+	/**
+	 * get default encryption module
+	 *
+	 * @return \OCP\Encryption\IEncryptionModule
+	 * @throws Exceptions\ModuleDoesNotExistsException
+	 */
+	public function getDefaultEncryptionModule();
+
+	/**
+	 * set default encryption module Id
+	 *
+	 * @param string $moduleId
+	 * @return string
+	 */
+	public function setDefaultEncryptionModule($moduleId);
+
 }

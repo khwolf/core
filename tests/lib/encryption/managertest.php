@@ -15,14 +15,14 @@ class ManagerTest extends TestCase {
 
 	public function testManagerIsDisabledIfEnabledButNoModules() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
 		$m = new Manager($config);
 		$this->assertFalse($m->isEnabled());
 	}
 
 	public function testManagerIsDisabledIfDisabledButModules() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(false);
+		$config->expects($this->any())->method('getAppValue')->willReturn(false);
 		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
@@ -33,7 +33,7 @@ class ManagerTest extends TestCase {
 
 	public function testManagerIsEnabled() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
 		$m = new Manager($config);
 		$this->assertTrue($m->isEnabled());
 	}
@@ -44,7 +44,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function testModuleRegistration() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
 		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
@@ -56,7 +56,7 @@ class ManagerTest extends TestCase {
 
 	public function testModuleUnRegistration() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
 		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
@@ -73,7 +73,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function testGetEncryptionModuleUnknown() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
 		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
@@ -85,7 +85,20 @@ class ManagerTest extends TestCase {
 
 	public function testGetEncryptionModule() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
+		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
+		$em->expects($this->any())->method('getId')->willReturn(0);
+		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
+		$m = new Manager($config);
+		$m->registerEncryptionModule($em);
+		$this->assertTrue($m->isEnabled());
+		$en0 = $m->getEncryptionModule(0);
+		$this->assertEquals(0, $en0->getId());
+	}
+
+	public function XtestGetDefaultEncryptionModule() {
+		$config = $this->getMock('\OCP\IConfig');
+		$config->expects($this->any())->method('getAppValue')->willReturn(true);
 		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
