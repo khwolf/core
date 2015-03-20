@@ -33,7 +33,8 @@ class ManagerTest extends TestCase {
 
 	public function testManagerIsEnabled() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getAppValue')->willReturn(true);
+		$config->expects($this->any())->method('getSystemValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn('yes');
 		$m = new Manager($config);
 		$this->assertTrue($m->isEnabled());
 	}
@@ -44,13 +45,13 @@ class ManagerTest extends TestCase {
 	 */
 	public function testModuleRegistration() {
 		$config = $this->getMock('\OCP\IConfig');
-		$config->expects($this->any())->method('getAppValue')->willReturn(true);
+		$config->expects($this->any())->method('getAppValue')->willReturn('yes');
 		$em = $this->getMock('\OCP\Encryption\IEncryptionModule');
 		$em->expects($this->any())->method('getId')->willReturn(0);
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
 		$m->registerEncryptionModule($em);
-		$this->assertTrue($m->isEnabled());
+		$this->assertSame(1, count($m->getEncryptionModules()));
 		$m->registerEncryptionModule($em);
 	}
 
@@ -62,9 +63,11 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
 		$m->registerEncryptionModule($em);
-		$this->assertTrue($m->isEnabled());
+		$this->assertSame(1,
+			count($m->getEncryptionModules())
+		);
 		$m->unregisterEncryptionModule($em);
-		$this->assertFalse($m->isEnabled());
+		$this->assertEmpty($m->getEncryptionModules());
 	}
 
 	/**
@@ -79,7 +82,7 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
 		$m->registerEncryptionModule($em);
-		$this->assertTrue($m->isEnabled());
+		$this->assertSame(1, count($m->getEncryptionModules()));
 		$m->getEncryptionModule('unknown');
 	}
 
@@ -91,7 +94,7 @@ class ManagerTest extends TestCase {
 		$em->expects($this->any())->method('getDisplayName')->willReturn('TestDummyModule0');
 		$m = new Manager($config);
 		$m->registerEncryptionModule($em);
-		$this->assertTrue($m->isEnabled());
+		$this->assertSame(1, count($m->getEncryptionModules()));
 		$en0 = $m->getEncryptionModule(0);
 		$this->assertEquals(0, $en0->getId());
 	}

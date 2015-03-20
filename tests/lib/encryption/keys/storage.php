@@ -212,15 +212,68 @@ class StorageTest extends TestCase {
 			->method('unlink')
 			->with($this->equalTo('/user1/files_encryption/encModule/user1.publicKey'))
 			->willReturn(true);
-		$this->view->expects($this->once())
-			->method('file_exists')
-			->with($this->equalTo('/user1/files_encryption/encModule/user1.publicKey'))
-			->willReturn(true);
 
 		$storage = new Storage('encModule', $this->view, $this->util);
 
 		$this->assertTrue(
 			$storage->deleteUserKey('user1', 'publicKey')
+		);
+	}
+
+	public function testDeleteSystemUserKey() {
+		$this->view->expects($this->once())
+			->method('unlink')
+			->with($this->equalTo('/files_encryption/encModule/shareKey_56884'))
+			->willReturn(true);
+
+		$storage = new Storage('encModule', $this->view, $this->util);
+
+		$this->assertTrue(
+			$storage->deleteSystemUserKey('shareKey_56884')
+		);
+	}
+
+	public function testDeleteFileKeySystemWide() {
+		$this->util->expects($this->any())
+			->method('getUidAndFilename')
+			->willReturn(array('user1', '/files/foo.txt'));
+		$this->util->expects($this->any())
+			->method('stripPartialFileExtension')
+			->willReturnArgument(0);
+		$this->util->expects($this->any())
+			->method('isSystemWideMountPoint')
+			->willReturn(true);
+		$this->view->expects($this->once())
+			->method('unlink')
+			->with($this->equalTo('/files_encryption/keys/files/foo.txt/encModule/fileKey'))
+			->willReturn(true);
+
+		$storage = new Storage('encModule', $this->view, $this->util);
+
+		$this->assertTrue(
+			$storage->deleteFileKey('user1/files/foo.txt', 'fileKey')
+		);
+	}
+
+	public function testDeleteFileKey() {
+		$this->util->expects($this->any())
+			->method('getUidAndFilename')
+			->willReturn(array('user1', '/files/foo.txt'));
+		$this->util->expects($this->any())
+			->method('stripPartialFileExtension')
+			->willReturnArgument(0);
+		$this->util->expects($this->any())
+			->method('isSystemWideMountPoint')
+			->willReturn(false);
+		$this->view->expects($this->once())
+			->method('unlink')
+			->with($this->equalTo('/user1/files_encryption/keys/files/foo.txt/encModule/fileKey'))
+			->willReturn(true);
+
+		$storage = new Storage('encModule', $this->view, $this->util);
+
+		$this->assertTrue(
+			$storage->deleteFileKey('user1/files/foo.txt', 'fileKey')
 		);
 	}
 
