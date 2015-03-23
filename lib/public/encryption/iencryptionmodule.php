@@ -104,4 +104,12 @@ interface IEncryptionModule {
 	 * @return integer unencrypted size
 	 */
 	public function calculateUnencryptedSize($path);
+
+	/**
+	 * get size of the unencrypted payload per block.
+	 * ownCloud read/write files with a block size of 8192 byte
+	 *
+	 * @return integer
+	 */
+	public function getUnencryptedBlockSize();
 }

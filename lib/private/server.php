@@ -46,6 +46,10 @@ class Server extends SimpleContainer implements IServerContainer {
 			return new ContactsManager();
 		});
 
+		$this->registerService('PreviewManager', function (Server $c) {
+			return new PreviewManager($c->getConfig());
+		});
+
 		$this->registerService('EncryptionManager', function (Server $c) {
 			return new Encryption\Manager($c->getConfig());
 		});

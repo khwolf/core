@@ -185,28 +185,34 @@ class Encryption extends Wrapper {
 		$fullPath = $this->getFullPath($path);
 		$encryptionModuleId = $this->util->getEncryptionModuleId($header);
 
-		try {
-
-		if (
-			$mode === 'w'
-			|| $mode === 'w+'
-			|| $mode === 'wb'
-			|| $mode === 'wb+'
-		) {
-			if (!empty($encryptionModuleId)) {
-				$encryptionModule = $this->encryptionManager->getEncryptionModule($encryptionModuleId);
-			} else {
-				$encryptionModule = $this->encryptionManager->getDefaultEncryptionModule();
-			}
-			$shouldEncrypt = $encryptionModule->shouldEncrypt($fullPath);
-		} else {
-			// only get encryption module if we found one in the header
-			if (!empty($encryptionModuleId)) {
-				$encryptionModule = $this->encryptionManager->getEncryptionModule($encryptionModuleId);
-				$shouldEncrypt = true;
-			}
+		$size = $unencryptedSize = 0;
+		if ($this->file_exists($path)) {
+			$size = $this->storage->filesize($path);
+			$unencryptedSize = $this->filesize($path);
 		}
 
+
+		try {
+
+			if (
+				$mode === 'w'
+				|| $mode === 'w+'
+				|| $mode === 'wb'
+				|| $mode === 'wb+'
+			) {
+				if (!empty($encryptionModuleId)) {
+					$encryptionModule = $this->encryptionManager->getEncryptionModule($encryptionModuleId);
+				} else {
+					$encryptionModule = $this->encryptionManager->getDefaultEncryptionModule();
+				}
+				$shouldEncrypt = $encryptionModule->shouldEncrypt($fullPath);
+			} else {
+				// only get encryption module if we found one in the header
+				if (!empty($encryptionModuleId)) {
+					$encryptionModule = $this->encryptionManager->getEncryptionModule($encryptionModuleId);
+					$shouldEncrypt = true;
+				}
+			}
 		} catch (ModuleDoesNotExistsException $e) {
 			$this->logger->warning('Encryption module "' . $encryptionModuleId . '" not found, file will be stored unencrypted');
 		}
@@ -214,7 +220,8 @@ class Encryption extends Wrapper {
 		if($shouldEncrypt === true && $encryptionModule !== null) {
 			$source = $this->storage->fopen($path, $mode);
 			$handle = \OC\Files\Stream\Encryption::wrap($source, $path, $fullPath, $header,
-				$this->uid, $encryptionModule, $this->storage, $this->util, $mode);
+				$this->uid, $encryptionModule, $this->storage, $this->util, $mode,
+				$size, $unencryptedSize);
 			return $handle;
 		} else {
 			return $this->storage->fopen($path, $mode);

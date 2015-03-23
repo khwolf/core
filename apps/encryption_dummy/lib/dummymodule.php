@@ -127,4 +127,8 @@ class DummyModule implements \OCP\Encryption\IEncryptionModule {
 		return 42;
 	}
 
+	public function getUnencryptedBlockSize() {
+		return 6126;
+	}
+
 }
