@@ -366,7 +366,7 @@ class Server extends SimpleContainer implements IServerContainer {
 	/**
 	 * @param string $encryptionModuleId encryption module ID
 	 *
-	 * @return \OCP\Encryption\IKeyStorage
+	 * @return \OCP\Encryption\Keys\IStorage
 	 */
 	function getEncryptionKeyStorage($encryptionModuleId) {
 		$view = new \OC\Files\View();
