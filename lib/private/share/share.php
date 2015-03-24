@@ -318,6 +318,7 @@ class Share extends \OC\Share\Constants {
 			$fileDependend = true;
 			$column = 'file_source';
 			$where = 'INNER JOIN `*PREFIX*filecache` ON `file_source` = `*PREFIX*filecache`.`fileid` WHERE';
+			$where .= ' `*PREFIX*filecache`.`path` LIKE \'files/%\' AND';
 		} else {
 			$column = 'item_source';
 			$where = 'WHERE';
@@ -1368,8 +1369,9 @@ class Share extends \OC\Share\Constants {
 				$root = '';
 			}
 			$where = 'INNER JOIN `*PREFIX*filecache` ON `file_source` = `*PREFIX*filecache`.`fileid`';
+			$where .= ' WHERE `*PREFIX*filecache`.`path` LIKE \'files/%\' ';
 			if (!isset($item)) {
-				$where .= ' WHERE `file_target` IS NOT NULL';
+				$where .= ' AND `file_target` IS NOT NULL';
 			}
 			$fileDependent = true;
 			$queryArgs = array();
