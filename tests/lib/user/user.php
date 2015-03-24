@@ -454,4 +454,20 @@ class User extends \Test\TestCase {
 		$this->assertTrue($user->delete());
 		$this->assertEquals(2, $hooksCalled);
 	}
+
+	public function testSerialize() {
+		$userManager = \OC::$server->getUserManager();
+		$backend  = new \OC_User_Dummy();
+		$userManager->registerBackend($backend);
+		$backend->createUser('foo','bar');
+		$user = $userManager->get('foo');
+		$serialized = serialize($user);
+		$reflector = new \ReflectionClass(get_class($user));
+		/** @var \OC\User\User $result */
+		$result = unserialize($serialized);
+		$this->assertEquals($user->getUID(), $result->getUID());
+		$this->assertEquals($user->getBackendClassName(), $result->getBackendClassName());
+		$this->assertEquals($user->getHome(), $result->getHome());
+		$this->assertEquals($user->getDisplayName(), $result->getDisplayName());
+	}
 }

@@ -13,7 +13,7 @@ use OC\Hooks\Emitter;
 use OCP\IUser;
 use OCP\IConfig;
 
-class User implements IUser {
+class User implements IUser, \Serializable {
 	/**
 	 * @var string $uid
 	 */
@@ -225,7 +225,7 @@ class User implements IUser {
 	 * @return string
 	 */
 	public function getBackendClassName() {
-		if($this->backend instanceof \OCP\IUserBackend) {
+		if ($this->backend instanceof \OCP\IUserBackend) {
 			return $this->backend->getBackendName();
 		}
 		return get_class($this->backend);
@@ -285,5 +285,23 @@ class User implements IUser {
 			$enabled = ($enabled) ? 'true' : 'false';
 			$this->config->setUserValue($this->uid, 'core', 'enabled', $enabled);
 		}
+	}
+
+	public function serialize() {
+		return serialize($this->uid);
+	}
+
+	public function unserialize($data) {
+		$uid = unserialize($data);
+		$userManager = \OC::$server->getUserManager();
+		$user = $userManager->get($uid);
+		$this->uid = $uid;
+		$this->home = $user->home;
+		$this->displayName = $user->displayName;
+		$this->backend = $user->backend;
+		$this->config = $user->config;
+		$this->emitter = $user->emitter;
+		$this->enabled = $user->enabled;
+		$this->lastLogin = $user->lastLogin;
 	}
 }
